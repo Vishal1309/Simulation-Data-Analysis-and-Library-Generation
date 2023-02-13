@@ -1,0 +1,33 @@
+ *******************************************************************************
+ Simulation Results
+ *******************************************************************************
+
+ MC steps =   811438
+
+ Reservoir Results 
+
+ Species  Temperature    Stretching      Bending     Torsion        LJ         Coul      dt
+ -------  -----------    ----------      -------     -------     -------     -------     --
+    1        85.0000        0.3533        0.0000      0.0000      0.0000      0.0000    0.13
+
+  Reservoir Statistics 
+  Move Type   Species        Attempted   Successful     % Acceptance  
+ ----------- ---------      ----------- ------------   ------------- 
+  HMC            1             811438.      568230.         70.03
+
+  Monte Carlo Move Statistics 
+  Move Type   Species        Attempted   Successful     % Acceptance  
+ ----------- ---------      ----------- ------------   ------------- 
+  Displace       1          219086506.    98837635.         45.11
+  Big Disp       1           24342854.      156585.          0.64
+  Add            1          283998034.    14003887.          4.93
+  Remove         1          284010606.    14004132.          4.93
+
+ Displace    2.35 hrs.
+ Big Disp   16.69 min.
+ Add    1.65 hrs.
+ Remove    1.65 hrs.
+ Reservoir =     1.31 sec.
+
+  Total Time =     6.00 hrs.
+

@@ -1,0 +1,40 @@
+ *************************************************************************
+ gc-n simulation 
+ *************************************************************************
+
+ Installation: edge_ccr     Run date: 10/01/2022 16:26:33                       
+
+ Input Data 
+
+ Nspec =            1
+ Volume =      1000.0000    
+ Temp =        85.000000    
+ zeta =          1  -4.7896000    
+
+ Molecule Data 
+
+ Dummbell                      
+
+ Atoms 
+
+  No  ID  Type     q        sig      eps/kB
+                  (e)       (A)        (K)
+   1  SW    1    0.0000    1.0000    100.00
+   2  HS    1    0.0000    0.1000      0.00
+
+ Stretching 
+
+  No   AT1  AT2  ID1  ID2     Kr/kB   r_eq
+                             (K/A^2)   (A)
+   1    1    2    SW   HS   ********  0.5500
+
+ Bending 
+
+  No   AT1  AT2  AT3  ID1  ID2  ID3     Kth/kB    th_eq
+                                      (K/rad^2)   (deg)
+
+ Torsion 
+
+  No   AT1  AT2  AT3  AT4  ID1  ID2  ID3  ID4       c0/kB     c1/kB     c2/kB     c3/kB
+                                                     (K)       (K)       (K)       (K)
+

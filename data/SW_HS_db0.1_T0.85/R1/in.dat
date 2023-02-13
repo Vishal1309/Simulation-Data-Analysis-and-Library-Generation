@@ -1,0 +1,55 @@
+Seed
+ 1
+Simulation Mode (GC: 1)
+  1
+Nspecies
+   1
+Temperature   chemical potential  volume of cubic box (A^3)
+85   -4.7896    1000
+Species details (Specify for each species)
+No.      Name     File     Bonded interaction type(1: Harmonic)
+1        "Dummbell"     dimer.dat    1
+Cut-off type (1:simple truncation)
+1
+Cut-off distance (should be less than half the box size)
+1.5
+Simulation Paramters
+Time (min)      Ncycle(frequency of printing)   Nadjust
+    360           1000          1000
+Transition Matrix Parameters
+Free energy mode (1 = TMMC, 2 = WL)
+ 1
+Nmin     Nmax     del (Range of number of molecules Nmin=Nmax for canonical))
+0      800     1
+tweights (min) (frequeny of calculating bias)   iswap(0.+1 or -1)
+     10000           0           
+Probability of MC move: Disp,hybrid one,hybrid,C/D,Volume,EE
+0.3  0.000  0.000  0.7  0.000  0.000  
+Probability of selecting each species for create / destroy
+ 1.0
+Probability of selecting each species for translation move
+ 1.0
+Probabilty of selecting translation over rotation of molecule
+ 1
+Probabilty of selcting a big displacement (intrabox swap) for each species
+ 0.1
+Growth function (a0 + a1*i + a2*i*i)
+1  0  0 
+HMC move options:
+nmedium     nshort     nmd/mc (nmedium and nshort are for time-scales)
+   2           2          5
+ vb     bd     tr     ljrl     fr     sf
+  3      2      2      2        0      0
+Reservoir information
+Nresmol
+10
+Nres_cycles    N_res_update    NMDsteps_res
+1                1             1
+Start with configuration from disk?
+   .false.
+Use current macrovariable limits?
+   .false.
+Start with Transition Matrix from disk?
+   .false.
+Start with Excess Free Energy from disk?
+   .false.

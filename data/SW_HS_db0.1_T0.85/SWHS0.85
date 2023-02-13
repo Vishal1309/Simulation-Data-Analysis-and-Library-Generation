@@ -1,0 +1,174 @@
+#!/bin/bash
+# qmgr -c "p s"
+###############################################33
+#This SLURM script is written to submit
+#runs on the VEGA cluster at IITGN.
+#It uses the executable specified to the EXEC variable
+#Specially meant for MC codes used by krane
+#assumes that all the input files are present in "st" folder
+#Assumes that the comppilares are installed on the nodes
+#It checks the presence of Rn (folder for nth production run)
+#If Rn is absent, it checks the presence of Rn-1 folder and so on
+#Generally, the first run is expected to be equilibration run
+#If a folder is present, it will submit the simulation for the next folder
+#Input: 1) Jobnamie 2) Executable 3) Name of the last run 4) Name of input files for each run
+#Additional information: 1) It checks the gn.dat file to check if 
+# simulation failed. Resubmits the job if failed once and stops when
+#when the job fails twice. The success of last step will depend on the user 
+#permissions
+
+######  SLURM parameters  ########## 
+#SBATCH --time=42:20:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+#SBATCH --job-name="SWHS0.85"
+#SBATCH --output out.dat
+#SBATCH --mail-user=md.moinuddin@iitgn.ac.in
+#SBATCH --mail-type=END
+#SBATCH --requeue
+#SBATCH --partition=main_new
+
+######  Input variables  ######
+EXEC="/home/KaustubhRane_grp/md.moinuddin/moin_source/flexible_bulk_SW_HS_db0.1/gchybrid_alkane.out"
+STP="7"
+inputfile[1]="in_eq.dat"
+inputfile[2]="in_r1.dat"
+inputfile[3]="in_r2.dat"
+inputfile[4]="in_r2.dat"
+inputfile[5]="in_r2.dat"
+inputfile[6]="in_r2.dat"
+inputfile[7]="in_r2.dat"
+inputfile[8]="in_r2.dat"
+inputfile[9]="in_r2.dat"
+inputfile[10]="in_r2.dat"
+inputfile[11]="in_r2.dat"
+inputfile[12]="in_r2.dat"
+inputfile[13]="in_r2.dat"
+inputfile[14]="in_r2.dat"
+inputfile[15]="in_r2.dat"
+inputfile[16]="in_r2.dat"
+inputfile[17]="in_r2.dat"
+inputfile[18]="in_r2.dat"
+inputfile[19]="in_r2.dat"
+inputfile[20]="in_r2.dat"
+inputfile[21]="in_r2.dat"
+inputfile[22]="in_r2.dat"
+inputfile[23]="in_r2.dat"
+inputfile[24]="in_r2.dat"
+inputfile[25]="in_r2.dat"
+inputfile[26]="in_r2.dat"
+inputfile[27]="in_r2.dat"
+inputfile[28]="in_r2.dat"
+inputfile[29]="in_r2.dat"
+inputfile[30]="in_r2.dat"
+inputfile[31]="in_r2.dat"
+inputfile[32]="in_r2.dat"
+inputfile[33]="in_r2.dat"
+inputfile[34]="in_r2.dat"
+inputfile[35]="in_r2.dat"
+inputfile[36]="in_r2.dat"
+inputfile[37]="in_r2.dat"
+inputfile[38]="in_r2.dat"
+inputfile[39]="in_r2.dat"
+inputfile[40]="in_r2.dat"
+inputfile[41]="in_r2.dat"
+inputfile[42]="in_r2.dat"
+inputfile[43]="in_r2.dat"
+inputfile[44]="in_r2.dat"
+inputfile[45]="in_r2.dat"
+inputfile[46]="in_r2.dat"
+
+#Loading modules
+#module load gcc/4.8.5
+#module load openmpi-x86_64
+
+######  Job submission and running details ######
+date
+echo "$SLURM_NODELIST" | sed -e "s/ /\n/g" > hostfile.$SLURM_JOBID
+NPROCS=`wc -l hostfile.$SLURM_JOBID | awk '{print $1}'`
+echo "Number of processors" $SLURM_NPROCS
+
+######  Defining some functions  #######
+#Function for running simulation
+function run_sim {
+        mkdir $1
+	cp "st/"$3 $1/"in.dat"
+        cp "st/bz.dat" $1"/bz.dat"
+	cp "st/gns.dat" $1"/gns.dat"
+        cp "st/gnsgc.dat" $1"/gnsgc.dat"
+	cp $2"/ptm.dat" $1"/tms.dat"
+	cp $2"/ptm_m_u.dat" $1"/tms_m_u.dat"
+        cp $2"/ptm_m_o.dat" $1"/tms_m_o.dat"
+        cp $2"/ptm_b_u.dat" $1"/tms_b_u.dat"
+        cp $2"/ptm_b_o.dat" $1"/tms_b_o.dat"
+        for j in $(seq 0 $[$SLURM_NPROCS-1])
+	do
+		if [ $j -gt "9" ]; then
+		    cp $2"/xyz_"$j".dat" $1"/xyz_"$j"s.dat"
+		    if [ "$1" = "R1" ]; then
+                       cp "st/xyz_"$j".dat" $1"/xyz_"$j"s.dat"
+		    fi
+		else
+                    cp $2"/xyz_0"$j".dat" $1"/xyz_0"$j"s.dat"
+		    if [ "$1" = "R1" ]; then
+		       cp "st/xyz_0"$j".dat" $1"/xyz_0"$j"s.dat"
+		    fi
+		fi
+	done
+	cd $1
+
+#####  Running the executable  ######
+        NPROCS=`srun --nodes=${SLURM_NNODES} bash -c 'hostname' |wc -l`
+#       export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+        mpirun -np $NPROCS $EXEC 
+	date
+	cd ..		
+}
+
+######  Function for re submitting the script after first run  ######
+function next_sim {
+        if [ -f "$1/ee.dat" ]; then
+       	       echo finished job $1 of $2
+	       if [ "$1" = "$2" ]; then
+		      echo all done
+	       else
+                      echo starting next run
+	       fi
+        elif [ -d "$1_fail" ]; then
+	       echo job failed twice
+	       mv $1 $1_fail2
+        else
+	       echo job failed
+	       echo starting again
+	       mv $1 $1_fail
+	       sbatch $jobname
+        fi
+}
+
+#####  Looping over different runs  ######
+i="$STP"
+while [ $i -gt "0" ]
+do
+   if [ -d "R$i" ]; then
+      if [ "$i" -ge "$STP" ]; then
+	 echo All done
+         i=0
+      else	 
+         echo R$[$i+1] run
+         LST="$i"
+         CRT="$[$i+1]" 
+ 	 run_sim R$CRT R$LST ${inputfile[$CRT]}
+         next_sim R$CRT R$STP
+    	 i=$[$i+1]
+      fi
+   elif [ "$i" -eq "1" ]; then 
+         echo R$i run
+	 LST="$[$i-1]"
+         CRT="$i"
+	 run_sim R$CRT R$LST ${inputfile[$CRT]}
+	 next_sim R$CRT R$STP 
+         i=$[$i+1]   
+   else
+         i=$[$i-1]
+   fi
+done
