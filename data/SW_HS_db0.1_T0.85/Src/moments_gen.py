@@ -4,11 +4,13 @@ import numpy as np
 import os
 import cmath
 import matplotlib.pyplot as plt
-from error_propagation import Complex, arrays_to_complex
+from stats import statHelp
+# from error_propagation import Complex, arrays_to_complex
 
 
-class MomentsCalculator:
+class momentsCalculator:
     def __init__(self):
+        self.statHelp = statHelp()
         self.first_iteration = None
         self.last_iteration = None
         self.x_start = None
@@ -25,32 +27,6 @@ class MomentsCalculator:
         self.std_itd_order_central_moment = None
         pass
 
-    def custom_power(self, a, n):
-        if(n == 0):
-            return 1
-        if(n == 1):
-            return a
-        if(n % 2 == 0):
-            return self.custom_power(a, n // 2) * self.custom_power(a, n // 2)
-        else:
-            return a * self.custom_power(a, n // 2) * self.custom_power(a, n // 2)
-
-    def ith_order_moment(self, order, norm_Pix, x, first_order_moment=None):
-        moment = 0
-        central_moment = 0
-        sum_norm_Pix = 0
-        begin_id = np.where(x == self.x_start)[0][0]
-        end_id = np.where(x == self.x_end)[0][0]
-        for xi in range(begin_id, end_id + 1):
-            moment += self.custom_power(xi, order) * norm_Pix[xi]
-            if(first_order_moment):
-                central_moment += self.custom_power(xi - first_order_moment, order) * norm_Pix[xi]
-            sum_norm_Pix += norm_Pix[xi]
-        moment /= sum_norm_Pix
-        if(first_order_moment):
-            central_moment /= sum_norm_Pix
-        return moment, central_moment
-
     def generate_moments(self, n, first_iteration, last_iteration, x_start, x_end, x_id = 0, y_id = 1, strategy1 = True, strategy2 = True, isPix = False, data_file_name = "gn_m.dat"):
         self.n = n 
         self.first_iteration = first_iteration
@@ -65,13 +41,30 @@ class MomentsCalculator:
             self.compute_moments()
         if strategy2:
             self.compute_moments_with_error()
+
+    def ith_order_moment(self, order, norm_Pix, x, first_order_moment=None):
+        moment = 0
+        central_moment = 0
+        sum_norm_Pix = 0
+        begin_id = np.where(x == self.x_start)[0][0]
+        end_id = np.where(x == self.x_end)[0][0]
+        for xi in range(begin_id, end_id + 1):
+            moment += self.statHelp.custom_power(xi, order) * norm_Pix[xi]
+            if(first_order_moment):
+                central_moment += self.statHelp.custom_power(xi - first_order_moment, order) * norm_Pix[xi]
+            sum_norm_Pix += norm_Pix[xi]
+        moment /= sum_norm_Pix
+        if(first_order_moment):
+            central_moment /= sum_norm_Pix
+        return moment, central_moment
+
     
     def get_complex_y(self, df):
         N = df.shape[0]
         all_y = np.zeros((N, self.last_iteration - self.first_iteration + 1))
         for i in range(self.first_iteration, self.last_iteration + 1):
             filePath = self.get_step_file_path(i)
-            df = self.dat_to_dataframe(filePath)
+            df = self.statHelp.dat_to_dataframe(filePath)
             norm_Pix = self.gen_norm_pix(df)
             for j in range(0, N):
                 all_y[j][i - self.first_iteration] = norm_Pix[j]
@@ -85,7 +78,7 @@ class MomentsCalculator:
     
     def compute_moments_with_error(self):
         filePath = self.get_step_file_path(1)
-        df = self.dat_to_dataframe(filePath)
+        df = self.statHelp.dat_to_dataframe(filePath)
         y_with_error = self.get_complex_y(df)
         all_moments_with_error = {
             "moments": [],
@@ -99,15 +92,11 @@ class MomentsCalculator:
             curr_order_moment, curr_order_central_moment = self.ith_order_moment(order, y_with_error, df[self.x_id], first_order_moment)
             all_moments_with_error["moments"].append(curr_order_moment)
             all_moments_with_error["central_moments"].append(curr_order_central_moment)
-        # print(all_moments_with_error["moments"])
-        # print(all_moments_with_error["central_moments"])
         split_moments = [(v.real, v.imag) for v in all_moments_with_error["moments"]]
         split_central_moments = [(v.real, v.imag) for v in all_moments_with_error["central_moments"]]
         np.savetxt(f"../avg_std_2/complex_m_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", split_moments, delimiter=" ")
         np.savetxt(f"../avg_std_2/complex_cm_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", split_central_moments, delimiter=" ")
         
-        ################### STORE IN A SEPARATE FOLDER WITH FILES HAVING LOGICAL NAMES
-        ################### IMPLEMENT THE READING OF THE 2 MORE ARGS AS WELL
         # VALIDATION USING MANUAL COMPUTATION
         return all_moments_with_error
 
@@ -117,10 +106,10 @@ class MomentsCalculator:
     def gen_norm_pix(self, df): 
         if not self.isPix:
             lnPix = df[self.y_id]
-            Pix = self.exponent(lnPix)
+            Pix = self.statHelp.exponent(lnPix)
         else:
             Pix = df[self.y_id]
-        norm_Pix = self.normalize(Pix)
+        norm_Pix = self.statHelp.normalize(Pix)
         return norm_Pix
 
     def gen_avg_std(self, mat_moments, mat_central_moments):
@@ -148,7 +137,7 @@ class MomentsCalculator:
         mat_central_moments = np.zeros((self.n + 1, self.last_iteration - self.first_iteration + 1))
         for i in range(self.first_iteration, self.last_iteration + 1):
             file_path = self.get_step_file_path(i)
-            df = self.dat_to_dataframe(file_path)
+            df = self.statHelp.dat_to_dataframe(file_path)
             norm_Pix = self.gen_norm_pix(df)
             all_moments = {
                 "moments": [],
@@ -170,59 +159,24 @@ class MomentsCalculator:
         self.moments_for_all_steps = moments_for_all_steps
         self.gen_avg_std(mat_moments, mat_central_moments)
         
-        ############################## COMPUTE STD DEV FOR ITH ORDER CENTRAL MOMENT AS WELL
-        ############################## STORE IN SEPARATE FOLDER WITH LOGICALLY NAMED FILES
-        ############################## ALLOW USER TO PICK THE COLUMN THAT IS SUPPOSED TO BE X and LNPI
-        ############################## ANOTHER ARGUMENT FOR PIX OR LNPIX
-        ############################## ANOTHER ARGUMENT FOR FILENAME
-        ############################## .DAT and .CSV BOTH
         # GET THE X, LNPIX FILE SEPARATELY FROM GLOBAL FILE AND THEN PERFORM OPERATION ON THE MIDFILE
         # CHECKING THE CORRECTNESS OF OUR ALGO
         
         return moments_for_all_steps
 
-    def normalize(self, Pix):
-        sum = np.sum(Pix)
-        norm_Pix = np.divide(Pix, sum)
-        return norm_Pix
-
-    def exponent(self, lnPix):
-        lnPix = np.array(lnPix)
-        mxlnPix = np.max(lnPix)
-        lnPix = np.subtract(lnPix, mxlnPix)
-        Pix = np.exp(lnPix)
-        return Pix
-
-    def dat_to_dataframe(self, dat_file):
-        if dat_file.split(".")[1] == "csv":
-            df = pd.read_csv(dat_file, dtype=np.float64, header=None)
-            return df
-        with open(dat_file, 'r') as input_file:
-            lines = input_file.readlines()
-            newLines = []
-            for line in lines:
-                newLine = line.strip(' ').split()
-                newLines.append(newLine)
-
-        csv_file = dat_file.replace('dat', 'csv')
-        with open(csv_file, 'w') as output_file:
-            file_writer = csv.writer(output_file)
-            file_writer.writerows(newLines)
-
-        df = pd.read_csv(csv_file, dtype=np.float64, header=None)
-        return df
+    
 
     def plot(self, first_iteration, last_iteration, x_id, y_id, data_file_name):
         self.data_file_name = data_file_name
         for i in range(first_iteration, last_iteration + 1):
             filePath = self.get_step_file_path(i)
-            df = self.dat_to_dataframe(filePath)
+            df = self.statHelp.dat_to_dataframe(filePath)
             plt.plot(df[x_id], df[y_id])
             plt.savefig('../Plots/plot_R' + str(i) + '.png')
             plt.clf()
 
 #### TEST1
-obj = MomentsCalculator()
+obj = momentsCalculator()
 obj.generate_moments(4, 1, 1, 345, 750, 0, 2, True, True, False, "gnn.dat")
 
 
