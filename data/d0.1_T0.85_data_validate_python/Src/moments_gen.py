@@ -5,12 +5,14 @@ import os
 import cmath
 import matplotlib.pyplot as plt
 from stats import statHelp
+from fileSaver import fileSaver
 # from error_propagation import Complex, arrays_to_complex
 
 
 class momentsCalculator:
     def __init__(self):
         self.statHelp = statHelp()
+        self.fileSaver = fileSaver()
         self.first_iteration = None
         self.last_iteration = None
         self.x_start = None
@@ -27,7 +29,7 @@ class momentsCalculator:
         self.std_itd_order_central_moment = None
         pass
 
-    def generate_moments(self, n, first_iteration, last_iteration, x_start, x_end, x_id = 0, y_id = 1, strategy1 = True, strategy2 = False, isPix = False, data_file_name = "gn_m.dat"):
+    def generate_moments(self, n, first_iteration, last_iteration, x_start, x_end, x_id = 0, y_id = 1, strategy1 = True, strategy2 = True, isPix = False, data_file_name = "gn_m.dat"):
         self.n = n 
         self.first_iteration = first_iteration
         self.last_iteration = last_iteration
@@ -37,9 +39,9 @@ class momentsCalculator:
         self.y_id = y_id
         self.isPix = isPix
         self.data_file_name = data_file_name
-        if strategy1 == True:
+        if strategy1:
             self.compute_moments()
-        if strategy2 == True:
+        if strategy2:
             self.compute_moments_with_error()
 
     def ith_order_moment(self, order, norm_Pix, x, first_order_moment=None):
@@ -99,8 +101,8 @@ class momentsCalculator:
             all_moments_with_error["central_moments"].append(curr_order_central_moment)
         split_moments = [(v.real, v.imag) for v in all_moments_with_error["moments"]]
         split_central_moments = [(v.real, v.imag) for v in all_moments_with_error["central_moments"]]
-        np.savetxt(f"../avg_std_2/complex_m_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", split_moments, delimiter=" ")
-        np.savetxt(f"../avg_std_2/complex_cm_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", split_central_moments, delimiter=" ")
+        self.fileSaver.save_file("avg_std_2", "complex_m", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], split_moments)
+        self.fileSaver.save_file("avg_std_2", "complex_cm", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], split_central_moments)
         
         # VALIDATION USING MANUAL COMPUTATION
         return all_moments_with_error
@@ -127,10 +129,10 @@ class momentsCalculator:
             avg_ith_order_central_moment[order] = np.average(mat_central_moments[order])
             std_ith_order_moment[order] = np.std(mat_moments[order])
             std_ith_order_central_moment[order] = np.std(mat_central_moments[order])
-        np.savetxt(f"../avg_std_1/avg_m_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", avg_ith_order_moment, delimiter=" ")
-        np.savetxt(f"../avg_std_1/avg_cm_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", avg_ith_order_central_moment, delimiter=" ")
-        np.savetxt(f"../avg_std_1/std_m_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", std_ith_order_moment, delimiter=" ")
-        np.savetxt(f"../avg_std_1/std_cm_{self.first_iteration}_{self.last_iteration}_{self.x_start}_{self.x_end}.dat", std_ith_order_central_moment, delimiter=" ")
+        self.fileSaver.save_file("avg_std_1", "avg_m", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], avg_ith_order_moment)
+        self.fileSaver.save_file("avg_std_1", "avg_cm", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], avg_ith_order_moment)
+        self.fileSaver.save_file("avg_std_1", "std_m", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], std_ith_order_moment)
+        self.fileSaver.save_file("avg_std_1", "std_cm", ".dat", [self.first_iteration, self.last_iteration, self.x_start, self.x_end], std_ith_order_central_moment)
         self.avg_ith_order_moment = avg_ith_order_moment
         self.avg_ith_order_central_moment = avg_ith_order_central_moment
         self.std_itd_order_moment = std_ith_order_moment

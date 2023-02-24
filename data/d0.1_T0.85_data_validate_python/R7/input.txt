@@ -1,0 +1,2 @@
+box_len=10.0
+Nv=9	Nmin=360	Nl=705		Nmax=750  Temp=0.85
