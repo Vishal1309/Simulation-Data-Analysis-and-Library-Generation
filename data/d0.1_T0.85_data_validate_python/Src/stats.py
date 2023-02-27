@@ -31,16 +31,22 @@ class statHelp:
         Pix = np.exp(lnPix)
         return Pix
 
-    def dat_to_dataframe(self, dat_file):
+    def dat_to_dataframe(self, dat_file, hasExtraInfo = False):
         if dat_file.split(".")[1] == "csv":
             df = pd.read_csv(dat_file, dtype=np.float64, header=None)
             return df
+        count = 0
         with open(dat_file, 'r') as input_file:
             lines = input_file.readlines()
             newLines = []
             for line in lines:
+                count += 1
                 newLine = line.strip(' ').split()
-                newLines.append(newLine)
+                if hasExtraInfo:
+                    if(count > 8):
+                        newLines.append(newLine)
+                else:
+                    newLines.append(newLine)
 
         csv_file = dat_file.replace('dat', 'csv')
         with open(csv_file, 'w') as output_file:
