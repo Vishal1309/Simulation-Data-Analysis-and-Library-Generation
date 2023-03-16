@@ -17,7 +17,7 @@ class clustering:
         frequencies = []
         for i in range(file_start, file_end + 1):
             filePath = f"XYZ_{process_no}_{i}"
-            df = self.statHelp.dat_to_dataframe(filePath)
+            df = self.statHelp.dat_to_dataframe(filePath, hasExtraInfo=True)
             x = list(df[:][1])
             y = list(df[:][2])
             z = list(df[:][3])
@@ -27,30 +27,34 @@ class clustering:
 
     def cluster(self, x, y, z, r_cut, process_no, file_no, frequencies):
         n = len(x)
-        cluster_id = 0
+        last_cluster_id = 0
+        curr_cluster_id = 0
         cluster_assignments = {}
+        assigned_cluster = {}
         if len(frequencies) == 0:
             frequencies = np.zeros(n)
         assigned = np.full(n, False, dtype=bool)
         for i in range(n):
-            if assigned[i]:
-                continue
             currPoint = [x[i], y[i], z[i]]
-            assigned[i] = True
-            cluster_id += 1
-            cluster_assignments[cluster_id] = list([i])
+            if assigned[i]:
+                curr_cluster_id = assigned_cluster[i]
+            else:
+                assigned[i] = True
+                last_cluster_id += 1
+                curr_cluster_id = last_cluster_id
+                cluster_assignments[curr_cluster_id] = list([i])
             for j in range(i + 1, n):
                 nextPoint = [x[j], y[j], z[j]]
                 dis = self.distance(currPoint, nextPoint)
                 if dis <= r_cut:
-                    cluster_assignments[cluster_id].append(j)
+                    cluster_assignments[curr_cluster_id].append(j)
                     assigned[j] = True
         for point_list in cluster_assignments.values():
             currsize = len(point_list)
             frequencies[currsize] += 1
         mat = []
         mat2 = []
-        for c_id in range(1, cluster_id + 1):
+        for c_id in range(1, last_cluster_id + 1):
             for point in cluster_assignments[c_id]:
                 row = [c_id, x[point], y[point], z[point]]
                 row2 = [c_id, point + 1]

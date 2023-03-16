@@ -56,22 +56,3 @@ class statHelp:
         df = pd.read_csv(csv_file, dtype=np.float64, header=None)
         return df
 
-#
-def dat_to_dataframe(self, dat_file):
-        with open(dat_file, 'r') as input_file:
-            lines = input_file.readlines()
-            newLines = []
-            count = 0
-            for line in lines:
-                count+=1
-                if(count >= 3):
-                    newLine = line.strip(' ').split()
-                    newLines.append(newLine)
-
-        csv_file = dat_file.replace('XYZ', 'csv')
-        with open(csv_file, 'w') as output_file:
-            file_writer = csv.writer(output_file)
-            file_writer.writerows(newLines)
-
-        df = pd.read_csv(csv_file, dtype=np.float64, header=None)
-        return df
