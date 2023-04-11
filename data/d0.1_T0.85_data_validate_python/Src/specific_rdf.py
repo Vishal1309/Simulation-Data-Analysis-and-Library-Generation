@@ -38,8 +38,8 @@ class specific_rdf:
         self.cluster_assignments = cluster_generator.get_cluster_assignments()
         x1, y1, z1, x2, y2, z2 = self.separate_points_across_clusters([1])
         rdf_calculator = radial_distribution_function()
-        g = rdf_calculator.calculate_processed_data(x1, y1, z1, x2, y2, z2, molecule_type, molecule_type, particle_id, particle_id, rho, nhis, box)
-        mat = np.array([self.xplt, self.g]).T
+        g, xplt = rdf_calculator.calculate_processed_data(x1, y1, z1, x2, y2, z2, molecule_type, molecule_type, particle_id, particle_id, rho, nhis, box)
+        mat = np.array([xplt, g]).T
         self.fileSaver.save_file('rdf', 'rdf', '.dat', [process_no_begin, process_no_end, file_start, file_end, molecule_type, molecule_type, particle_id, particle_id, rho, nhis, box], mat)
         return g
 

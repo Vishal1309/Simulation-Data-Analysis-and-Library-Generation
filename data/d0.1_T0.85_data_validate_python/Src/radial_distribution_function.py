@@ -65,7 +65,7 @@ class radial_distribution_function:
             vb = ( np.power(i + 1, 3) - np.power(i, 3) ) * np.power(dr, 3)
             nid = (4 / 3) * (np.pi) * (vb) * (rho)
             g[i] = g[i] / (ngr * npart * nid)
-        return g, denominator
+        return g, self.xplt
 
     def calculate(self, process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, box = 10): ######### WHATTTT ISSS NGR???????
         ########## any atom type and any molecules
@@ -81,7 +81,7 @@ class radial_distribution_function:
                 x1, y1, z1 = self.get_relevant_XYZ(df, molecule_type1, particle_id1)
                 x2, y2, z2 = self.get_relevant_XYZ(df, molecule_type2, particle_id2)
                 denominator += 1
-                g = self.calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, denominator, box = 10)
+                g, self.xplt = self.calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, denominator, box = 10)
                 for i in range(nhis):
                     self.g[i] += g[i]
         np.divide(self.g, denominator)
