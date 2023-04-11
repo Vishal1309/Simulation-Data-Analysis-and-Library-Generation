@@ -27,9 +27,9 @@ class sim_lib:
         generator_prop = propGenerator(first_iteration, last_iteration)
         generator_prop.generate_properties(skewness_and_kurtosis, compressibility)
 
-    def generate_clustering(self, process_no, file_start, file_end, r_cut):
+    def generate_clustering(self, process_no_begin, process_no_end, file_start, file_end, molecule_type, particle_id, r_cut):
         clustering_generator = clustering()
-        clustering_generator.assign_cluster(process_no, file_start, file_end, r_cut)
+        clustering_generator.assign_cluster(process_no_begin, process_no_end, file_start, file_end, molecule_type, particle_id, r_cut)
 
     def get_rdf(self, molecule_type, particle_id, rho, nhis, filename, box):
         rdf_generator = radial_distribution_function()
