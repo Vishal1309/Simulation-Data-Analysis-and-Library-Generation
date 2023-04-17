@@ -31,7 +31,7 @@ class statHelp:
         Pix = np.exp(lnPix)
         return Pix
 
-    def dat_to_dataframe(self, dat_file, hasExtraInfo = False):
+    def dat_to_dataframe(self, dat_file, hasExtraInfo = False, needBoxSize = False):
         if dat_file.split(".")[1] == "csv":
             df = pd.read_csv(dat_file, dtype=np.float64, header=None)
             return df
@@ -39,10 +39,13 @@ class statHelp:
         with open(dat_file, 'r') as input_file:
             lines = input_file.readlines()
             newLines = []
+            ##### second line last element should be stored somehow
             for line in lines:
                 count += 1
                 newLine = line.strip(' ').split()
                 if hasExtraInfo:
+                    if count == 2 and needBoxSize:
+                       return newLine[-1]
                     if(count > 8):
                         newLines.append(newLine)
                 else:

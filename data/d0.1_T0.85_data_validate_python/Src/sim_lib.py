@@ -9,6 +9,7 @@ from moments_gen import momentsCalculator
 from prop_gen import propGenerator
 from clustering import clustering
 from radial_distribution_function import radial_distribution_function
+from specific_rdf import specific_rdf
 # from error_propagation import Complex, arrays_to_complex
 
 class sim_lib:
@@ -29,11 +30,15 @@ class sim_lib:
 
     def generate_clustering(self, process_no_begin, process_no_end, file_start, file_end, molecule_type, particle_id, r_cut):
         clustering_generator = clustering()
-        clustering_generator.assign_cluster(process_no_begin, process_no_end, file_start, file_end, molecule_type, particle_id, r_cut)
+        clustering_generator.assign_cluster(process_no_begin, process_no_end, file_start, file_end, r_cut, molecule_type, particle_id)
 
     def get_rdf(self, molecule_type, particle_id, rho, nhis, filename, box):
         rdf_generator = radial_distribution_function()
         rdf_generator.calculate(molecule_type, particle_id, rho, nhis, filename, box)
+
+    def generate_specific_rdf(self, process_no_begin, process_no_end, file_start, file_end, molecule_in_cluster, molecule_outside_cluster, particle_id1, particle_id2, r_cut, rho, nhis, box = 10):
+        specific_rdf_generator = specific_rdf()
+        specific_rdf_generator.get_secific_rdf(process_no_begin, process_no_end, file_start, file_end, molecule_in_cluster, molecule_outside_cluster, particle_id1, particle_id2, r_cut, rho)
 
     # def run_functions(self, generate_lnpi = False, generate_moments = True, generate_properties = True, n = 1, first_iteration = 1, last_iteration = 1, x_start = 0, x_end = 100, x_id = 0, y_id = 1, strategy1 = True, strategy2 = True, isPix = False, data_file_name = "gn_m.dat", property_params = []):
     #     if generate_lnpi:

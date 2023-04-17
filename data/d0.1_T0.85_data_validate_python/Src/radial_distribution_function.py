@@ -42,9 +42,11 @@ class radial_distribution_function:
         curr = curr[::-1]
         return curr
     
-    def calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, box = 10):
+    def calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, nhis, box = 10):
         npart = len(x1)
         mpart = len(x2)
+        rho = npart + mpart
+        rho /= (box)**3 ########### statHelp??
         dr = box / (2 * nhis)
         g = np.zeros(nhis)
         for i in range(1, npart):
@@ -67,7 +69,7 @@ class radial_distribution_function:
             g[i] = g[i] / (ngr * npart * nid)
         return g, self.xplt
 
-    def calculate(self, process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, box = 10): ######### WHATTTT ISSS NGR???????
+    def calculate(self, process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, nhis, box = 10): ######### WHATTTT ISSS NGR???????
         ########## any atom type and any molecules
         ########## separate file for combining clustering and rdf - molecules from 1 cluster 
         denominator = 0
@@ -78,15 +80,17 @@ class radial_distribution_function:
                 curr_file_id = self.append_zeros(i, 4)
                 filePath = f"XYZ_{curr_pr}_{curr_file_id}"
                 df = self.statHelp.dat_to_dataframe(filePath, hasExtraInfo=True)
+                box_volume = self.statHelp.dat_to_dataframe(filePath, hasExtraInfo=True, needBoxSize=True)
+                box = pow(box_volume, 1/3)
                 x1, y1, z1 = self.get_relevant_XYZ(df, molecule_type1, particle_id1)
                 x2, y2, z2 = self.get_relevant_XYZ(df, molecule_type2, particle_id2)
                 denominator += 1
-                g, self.xplt = self.calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, denominator, box = 10)
+                g, self.xplt = self.calculate_processed_data(self, x1, y1, z1, x2, y2, z2, molecule_type1, molecule_type2, particle_id1, particle_id2, nhis, denominator, box = 10)
                 for i in range(nhis):
                     self.g[i] += g[i]
         np.divide(self.g, denominator)
         mat = np.array([self.xplt, self.g]).T
-        self.fileSaver.save_file('rdf', 'rdf', '.dat', [process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, rho, nhis, box], mat)
+        self.fileSaver.save_file('rdf', 'rdf', '.dat', [process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, nhis, box], mat)
         # self.plot(box, nhis)
         return self.g
 
