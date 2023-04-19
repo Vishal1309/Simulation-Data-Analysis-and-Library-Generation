@@ -13,16 +13,20 @@ class specific_rdf:
         self.fileSaver = fileSaver()
         pass
 
-    def separate_points_across_clusters(self, file_idx, cluster_id, molecule_in_cluster, molecule_outside_cluster):
+    def separate_points_across_clusters(self, file_idx, cluster_id, molecule_in_cluster, molecule_outside_cluster, inSameCluster = False):
         x1, y1, z1 = list(), list(), list()
         x2, y2, z2 = list(), list(), list()
         for key in self.cluster_assignments[file_idx].keys():
-            if key == cluster_id:
+            if key == cluster_id or inSameCluster:
                 for coordinate in self.cluster_assignments[file_idx][key]:
                     if coordinate[3] == molecule_in_cluster:
                         x1.append(coordinate[0])
                         y1.append(coordinate[1])
                         z1.append(coordinate[2])
+                    if inSameCluster and coordinate[3] == molecule_outside_cluster:
+                        x2.append(coordinate[0])
+                        y2.append(coordinate[1])
+                        z2.append(coordinate[2])
             else:
                 for coordinate in self.cluster_assignments[file_idx][key]:
                     if coordinate[3] == molecule_outside_cluster:
@@ -32,7 +36,6 @@ class specific_rdf:
         return x1, y1, z1, x2, y2, z2
                 
     def get_secific_rdf(self, process_no_begin, process_no_end, file_start, file_end, molecule_in_cluster, molecule_outside_cluster, particle_id1, particle_id2, r_cut, rho, nhis, box = 10): 
-        ############################# PROCESS BEGIN and PROCESS END MUST BE THE SAME, FILE START AND FILE END MUST ALSO BE THE SAME
         cluster_generator = clustering()
         cluster_generator.assign_cluster(process_no_begin, process_no_end, file_start, file_end, r_cut)
         self.cluster_assignments = cluster_generator.get_cluster_assignments()
@@ -46,7 +49,7 @@ class specific_rdf:
                 n_clusters = 0
                 for cluster_id in self.cluster_assignments[denominator]:
                     n_clusters += 1
-                    x1, y1, z1, x2, y2, z2 = self.separate_points_across_clusters(denominator, cluster_id, molecule_in_cluster, molecule_outside_cluster)
+                    x1, y1, z1, x2, y2, z2 = self.separate_points_across_clusters(denominator, cluster_id, molecule_in_cluster, molecule_outside_cluster, True)
                     g, xplt = rdf_calculator.calculate_processed_data(x1, y1, z1, x2, y2, z2, molecule_in_cluster, molecule_outside_cluster, particle_id1, particle_id2, rho, nhis, box)
                     for i in range(nhis):
                         temp_g += g[i]

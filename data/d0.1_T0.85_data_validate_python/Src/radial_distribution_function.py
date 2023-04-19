@@ -70,8 +70,6 @@ class radial_distribution_function:
         return g, self.xplt
 
     def calculate(self, process_no_begin, process_no_end, file_start, file_end, molecule_type1, molecule_type2, particle_id1, particle_id2, nhis, box = 10): ######### WHATTTT ISSS NGR???????
-        ########## any atom type and any molecules
-        ########## separate file for combining clustering and rdf - molecules from 1 cluster 
         denominator = 0
         self.g = np.zeros(nhis)
         for pr in range(int(process_no_begin), int(process_no_end) + 1):

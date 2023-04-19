@@ -15,10 +15,6 @@ class clustering:
         self.L = 10
         pass
 
-    def get_cm(self, x2d, y2d, z2d):
-        
-        pass
-
     def get_relevant_XYZ_with_center_of_mass(self, df, molecule_type = None, particle_id = None):
         x = list()
         y = list()
