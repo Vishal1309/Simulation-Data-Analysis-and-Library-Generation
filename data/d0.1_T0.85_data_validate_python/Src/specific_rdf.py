@@ -58,6 +58,6 @@ class specific_rdf:
                     g_avg += temp_g[i]
         g_avg = np.divide(g, denominator)
         mat = np.array([xplt, g]).T
-        self.fileSaver.save_file('rdf', 'rdf', '.dat', [process_no_begin, process_no_end, file_start, file_end, molecule_in_cluster, molecule_outside_cluster, particle_id, particle_id, rho, nhis, box], mat)
+        self.fileSaver.save_file('rdf', 'rdf', '.dat', [process_no_begin, process_no_end, file_start, file_end, molecule_in_cluster, molecule_outside_cluster, particle_id1, particle_id2, rho, nhis, box], mat)
         return g
 
